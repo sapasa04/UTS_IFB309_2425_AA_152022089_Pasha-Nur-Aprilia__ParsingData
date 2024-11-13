@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensor Data Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #FFF5E1; 
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .dashboard-container {
+            max-width: 900px;
+            padding: 20px;
+            background-color: #FFD1DC; 
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1E3A8A; 
+            margin-bottom: 5px;
+        }
+
+        .sub-header {
+            font-size: 14px;
+            color: #1E3A8A; 
+            margin-bottom: 20px;
+        }
+
+        /* Cards Styling */
+        .cards-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .card {
+            flex: 1;
+            background-color: #FFF0F5; /* Light pink for card background */
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 250px;
+        }
+
+        .card h3 {
+            font-size: 18px;
+            color: #1E3A8A; /* Dark blue for card titles */
+            margin-bottom: 10px;
+        }
+
+        .card .value {
+            font-size: 36px;
+            color: #1E3A8A; /* Dark blue for card values */
+        }
+
+        /* Chart Section */
+        .chart-container {
+            background-color: #FFF0F5; /* Light pink for chart background */
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-title {
+            font-size: 18px;
+            color: #1E3A8A; /* Dark blue for chart title */
+            margin-bottom: 15px;
+        }
+
+        /* Year display section */
+        #yearText {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #1E3A8A; /* Dark blue for year text */
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .cards-container {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">Data Cuaca</div>
+        <div class="sub-header">Last updated: 13 November 2024</div>
+        
+        <div class="cards-container">
+            <div class="card">
+                <h3>Temperature Max</h3>
+                <div class="value" id="suhumax">Loading...</div>
+            </div>
+            <div class="card">
+                <h3>Temperature Min</h3>
+                <div class="value" id="suhumin">Loading...</div>
+            </div>
+            <div class="card">
+                <h3>Average Temperature</h3>
+                <div class="value" id="suhurata">Loading...</div>
+            </div>
+        </div>
+
+        <div id="yearText">Years displayed: Loading...</div>
+    </div>
+
+    <script>
+        async function fetchSensorData() {
+            try {
+                const response = await fetch('/data-cuaca');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                const data = await response.json();
+                
+                document.getElementById('suhumax').textContent = data.suhumax;
+                document.getElementById('suhumin').textContent = data.suhumin;
+                document.getElementById('suhurata').textContent = data.suhurata;
+
+                const yearContainer = document.getElementById('yearText');
+                if (data.month_year_max && data.month_year_max.length > 0) {
+                    const uniqueYears = [...new Set(data.month_year_max.map(entry => entry.month_year))];
+                    yearContainer.textContent = `Years displayed: ${uniqueYears.join(', ')}`;
+                } else {
+                    yearContainer.textContent = 'No data available for years';
+                }
+            } catch (error) {
+                console.error('Error fetching sensor data:', error);
+            }
+        }
+        window.onload = fetchSensorData;
+    </script>
+</body>
+</html>
